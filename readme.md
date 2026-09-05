@@ -1,15 +1,25 @@
 # PacmanWars
-**Do you think you have what it takes to beat all the other players ?**
+
+**Build a Python bot, give it only a 5×5 view of the arena, and see whether its
+strategy can outlast every rival.**
 
 PacmanWars is a game where multiple bots compete in a grid-based environment to collect food and survive. If you want to fight in this game, you can fork the repo and submit the code of your own bot. 
 
 ![game-snapshot](assets/game-snapshot.png)
 
-## How to submit your custom bots
+## Features
+
+- Procedurally generated arenas with walkable, mountain, food, and out-of-bounds cells
+- Simultaneous competition between independently implemented bot strategies
+- Restricted 5×5 observations that reward local planning
+- Food-based combat resolution and a live scoreboard
+- Adjustable simulation speed and a 1,000-turn match limit
+
+## Create a custom bot
 
 To create a custom bot, follow these steps:
 
-1. Create a new Python file in the [bots](http://_vscodecontentref_/8) directory with any valid name.
+1. Create a new Python file in the [`bots`](./bots) directory with any valid name.
 2. Define a new class that inherits from the `Bot` class (Keep the class name as your github username).
 3. Implement the **move** method.
 4. See the reference bots **basic_bot1.py** and **basic_bot2.py**.
@@ -28,13 +38,6 @@ class CustomBot(Bot):
         # Implement your bot's strategy here
         return direction
 ```
-
-## Features
-
-- Randomly generated game map with obstacles and food
-- Multiple bots with unique behaviors coded by different people
-- Real-time scoreboard
-- Customizable bot strategies
 
 ## Installation
 
@@ -65,6 +68,19 @@ class CustomBot(Bot):
 
 2. Watch the bots compete and collect food. The scoreboard on the right side of the screen shows the current standings.
 
+## How a match works
+
+```mermaid
+flowchart LR
+  Map[Generate arena] --> Spawn[Spawn bots and food]
+  Spawn --> View[Give each bot a 5×5 minimap]
+  View --> Move[Collect one move per bot]
+  Move --> Resolve[Resolve walls, food, and collisions]
+  Resolve --> Score[Update scoreboard]
+  Score -->|turns remain| View
+  Score -->|one bot or 1,000 turns| Winner[Declare winner]
+```
+
 ## Project Structure
 
 - [main.py](https://github.com/xzaviourr/PacmanWars/blob/master/main.py): The main entry point for the game.
@@ -75,7 +91,7 @@ class CustomBot(Bot):
 - [bots](https://github.com/xzaviourr/PacmanWars/tree/master/bots): Directory containing bot implementations.
 - [readme.md](https://github.com/xzaviourr/PacmanWars/blob/master/readme.md): This file.
 
-## How to play the game
+## Rules
 This is a last man standing game. **Your bot needs to kill all the other bots to win the game**. To kill any other bot, your bot needs to cross that bot or be in the same cell as the other bot. When two or more bots are in the same cell, bot with the maximum amount of food wins the battle and collect food from all the dead bots.
 
 Food will keep on spawning across the map. In each turn bot can move in either of the 4 directions or does not move at all. Bots can collect food from the food cells (Blue colored). Bots cannot move in the red (MOUNTAIN_CELL) and black (OUT_OF_BOUNDS_CELL) cells. After each turn, bot will be provided with a **5x5 minimap** based on which the bot needs to decide its next move. Total number of moves is 1000. After 1000 moves, player with most amount of food will be the winner.
@@ -93,3 +109,34 @@ Types of bot movement -
 - MOVE_UP : bot moves 1 cell up
 - MOVE_DOWN : bot moves 1 cell down
 - MOVE_HALT : bot does not move
+
+## Validation
+
+There is no automated test suite yet. A lightweight syntax check is:
+
+```bash
+python -m compileall -q main.py constants.py modules bots
+```
+
+Run `python main.py` for integration validation because map rendering and game
+input depend on a graphical display.
+
+## Project status and limitations
+
+PacmanWars is a playable community project rather than a networked tournament
+service. Matches run locally, bot code executes in the same Python process, and
+submitted bots are **not sandboxed**. Review third-party bot code before
+running it. Random maps and food placement make outcomes nondeterministic
+unless the code is adapted to control its random seed.
+
+## Contributing
+
+Fork the repository, add your bot without changing the engine, test a complete
+local match, and open a pull request describing the strategy. Never include
+credentials or machine-specific files.
+
+## License
+
+No repository-wide license has been declared. Copyright remains with the
+respective contributors; contact the maintainers before reusing or
+redistributing the code.
